@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <body>
+    </body>
+    <script type="text/javascript">
+    	window.onload = function() { 
+            window.onkeydown = function(event) {
+            	window.parent.postMessage({
+            		which: event.which
+            	}, "*");
+            }
+        }
+    </script>
+</html>
