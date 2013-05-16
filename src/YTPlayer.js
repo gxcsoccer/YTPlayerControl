@@ -11,6 +11,12 @@ define(function(require, exports, module) {
 		};
 
 	YTPlayer.prototype = {
+		zoomIn: function() {
+
+		},
+		zoomOut: function() {
+
+		},
 		pause: function() {
 			player && player.pauseVideo();
 		},
@@ -93,6 +99,23 @@ define(function(require, exports, module) {
 				player.loadVideoById(videoId, 0, "default");
 			}
 		},
+		getVolume: function() {
+			return player ? player.getVolume() : 100;
+		},
+		setVolume: function(vol) {
+			player && player.setVolume(vol);
+		},
+		setMuteFlag: function(muteFlag) {
+			if (!player) {
+				return;
+			}
+
+			muteFlag ? player.mute() : player.unMute();
+		},
+		getMuteFlag: function() {
+			return player && player.isMuted() ? 1 : 0;
+		},
+
 		releasePlayer: function() {
 			if (player) {
 				player.destroy();
@@ -114,11 +137,43 @@ define(function(require, exports, module) {
 			height: '720',
 			width: '1280',
 			videoId: videoId,
+			playerVars: {
+				'autoplay': 1,
+				'controls': 0
+			},
 			events: {
 				'onReady': onPlayerReady,
 				'onStateChange': onPlayerStateChange
 			}
 		});
+
+		player.addEventListener('onError', function() {
+			//this.trigger('EVENT_MEDIA_ERROR');
+		}, false);
+
+		player.addEventListener('onStateChange', function(event) {
+			var state = event.data,
+				new_play_mode = 2;
+
+			switch (state) {
+			case YT.PlayerState.ENDED:
+				new_play_mode = 0;
+				//'EVENT_MEDIA_END'
+				break;
+			case YT.PlayerState.CUED:
+			case YT.PlayerState.PLAYING:
+			case YT.PlayerState.BUFFERING:
+				new_play_mode = 2;
+				break;
+			case YT.PlayerState.PAUSED:
+				new_play_mode = 1;
+				break;
+			default:
+				console.warn("unknown player state: " + state);
+			}
+
+			//'EVENT_PLAYMODE_CHANGE'
+		}, false);
 	};
 
 	return new YTPlayer();
